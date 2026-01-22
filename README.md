@@ -32,23 +32,65 @@ This project showcases a complete **ESRS E1 Climate Change** reporting implement
 
 ---
 
+## Portfolio Showcase
+
+<table>
+<tr>
+<td width="50%">
+
+### Monthly GHG Emissions by Scope
+![Emissions by Scope](powerbi/screenshots/emissions_by_scope.png)
+
+</td>
+<td width="50%">
+
+### Data Quality Assessment
+![Data Quality](powerbi/screenshots/data_quality_distribution.png)
+
+</td>
+</tr>
+</table>
+
+### Emissions Intensity Performance vs 2030 Target
+![Emissions Intensity](powerbi/screenshots/emissions_intensity_trend.png)
+
+**At a glance:**
+- ✅ **778,118 tCO2e** total emissions across 24 months
+- ✅ **48.2% measured** via direct instrumentation (ESRS E1 compliant)
+- ✅ **0.834 tCO2e/tonne** intensity (competitive with Swedish industry)
+- ✅ **16% reduction gap** to 2030 target (0.70 tCO2e/tonne)
+
+**Key business insights:**
+- Scope 1 dominance (59%) typical for blast furnace steel → requires process transformation (H2-DRI, electrification)
+- Scope 3 data quality gap (60% estimated) → supplier engagement critical for CSRD compliance
+- Seasonal emissions patterns correlate with production scheduling and heating demand
+- Competitive emissions intensity vs global average (1.8-2.0 tCO2e/tonne)
+
+[View detailed methodology and data sources →](#methodology-highlights)
+
+---
+
 ## Project Structure
 
 ```
 CSRD-Climate-Implementation/
+│
+├── powerbi/
+│   └── screenshots/                     # Data visualizations ⭐
+│       ├── emissions_by_scope.png
+│       ├── data_quality_distribution.png
+│       └── emissions_intensity_trend.png
 │
 ├── data/
 │   ├── README.md                        # Data dictionary & emission factors
 │   └── norrland_stal_emissions.xlsx     # Generated dataset (not in Git)
 │
 ├── scripts/
-│   └── generate_mock_data.py            # Python data generator
+│   ├── generate_mock_data.py            # Python data generator
+│   └── generate_visuals.py              # Visualization generator
 │
 ├── docs/
 │   └── methodology.md                   # GHG Protocol methodology
-│
-├── powerbi/
-│   └── (Power BI files - coming soon)
 │
 ├── .gitignore                           # Excludes .xlsx and .pbix files
 └── README.md                            # This file
