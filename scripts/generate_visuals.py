@@ -86,8 +86,9 @@ def create_stacked_bar_chart(df, output_path):
     ax.set_xticks(x[::2])  # Show every other month
     ax.set_xticklabels(df['Date'].iloc[::2], rotation=45, ha='right')
 
-    # Legend
-    ax.legend(loc='upper left', framealpha=0.95, fontsize=10)
+    # Legend (reversed order to match visual stacking)
+    handles, labels = ax.get_legend_handles_labels()
+    ax.legend(handles[::-1], labels[::-1], loc='upper left', framealpha=0.95, fontsize=10)
 
     # Grid
     ax.yaxis.grid(True, alpha=0.3)
@@ -125,11 +126,16 @@ def create_intensity_trend_chart(df, output_path):
             color=COLORS['scope1'], label='Actual Emissions Intensity',
             alpha=0.9)
 
-    # Add target line (0.70 tCO2e/tonne by 2030)
+    # Add target line (0.70 tCO2e/tonne by 2030) - thicker for visibility
     target = 0.70
     ax.axhline(y=target, color=COLORS['target'], linestyle='--',
-               linewidth=2, label=f'2030 Target: {target} tCO₂e/tonne',
-               alpha=0.8)
+               linewidth=3.5, label=f'2030 Target: {target} tCO₂e/tonne',
+               alpha=0.9)
+
+    # Add shaded region between target and actual values
+    ax.fill_between(x, target, intensity, where=(intensity >= target),
+                     alpha=0.2, color=COLORS['scope1'], interpolate=True,
+                     label='Gap to Target')
 
     # Calculate and show trend
     z = np.polyfit(x, intensity, 1)
@@ -168,9 +174,7 @@ def create_intensity_trend_chart(df, output_path):
             transform=ax.transAxes, fontsize=9, verticalalignment='top',
             bbox=dict(boxstyle='round', facecolor='lightblue', alpha=0.8))
 
-    # Highlight target zone
-    ax.fill_between(x, 0, target, alpha=0.1, color=COLORS['target'],
-                     label='Target Zone')
+    # Target zone no longer needed (replaced with gap shading above)
 
     plt.tight_layout()
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
@@ -183,7 +187,7 @@ def create_data_quality_chart(df, output_path):
     Chart 3: Data Quality Distribution (Pie Chart)
     Shows percentage of measured, calculated, and estimated data
     """
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+    fig, ax1 = plt.subplots(figsize=(10, 8))
 
     # Overall data quality
     total_measured = (df['Scope1_Measured'].sum() +
@@ -209,69 +213,22 @@ def create_data_quality_chart(df, output_path):
     wedges1, texts1, autotexts1 = ax1.pie(sizes1, explode=explode1, labels=labels1,
                                             colors=colors1, autopct='%1.1f%%',
                                             shadow=True, startangle=90,
-                                            textprops={'fontsize': 10})
+                                            textprops={'fontsize': 14})
 
-    # Make percentage text bold
+    # Make percentage text bold and larger
     for autotext in autotexts1:
         autotext.set_color('white')
         autotext.set_fontweight('bold')
-        autotext.set_fontsize(11)
+        autotext.set_fontsize(16)
 
-    ax1.set_title('Overall Data Quality Distribution\n(All Scopes Combined)',
-                  fontsize=12, fontweight='bold', pad=20)
+    # Make labels larger
+    for text in texts1:
+        text.set_fontsize(14)
 
-    # Pie chart 2: Data quality by scope
-    scope_quality = {
-        'Scope 1\nMeasured': df['Scope1_Measured'].sum(),
-        'Scope 1\nCalculated': df['Scope1_Calculated'].sum(),
-        'Scope 1\nEstimated': df['Scope1_Estimated'].sum(),
-        'Scope 2\nMeasured': df['Scope2_Measured'].sum(),
-        'Scope 2\nCalculated': df['Scope2_Calculated'].sum(),
-        'Scope 3\nMeasured': df['Scope3_Measured'].sum(),
-        'Scope 3\nCalculated': df['Scope3_Calculated'].sum(),
-        'Scope 3\nEstimated': df['Scope3_Estimated'].sum(),
-    }
+    ax1.set_title('Data Quality Distribution - Norrland Stål AB\n(ESRS E1 Requirements)',
+                  fontsize=16, fontweight='bold', pad=30)
 
-    # Filter out zero values
-    scope_quality = {k: v for k, v in scope_quality.items() if v > 0}
-
-    labels2 = list(scope_quality.keys())
-    sizes2 = list(scope_quality.values())
-
-    # Color mapping by scope
-    colors2 = []
-    for label in labels2:
-        if 'Scope 1' in label:
-            if 'Measured' in label:
-                colors2.append('#C62828')
-            elif 'Calculated' in label:
-                colors2.append('#E57373')
-            else:
-                colors2.append('#FFCDD2')
-        elif 'Scope 2' in label:
-            if 'Measured' in label:
-                colors2.append('#1565C0')
-            else:
-                colors2.append('#64B5F6')
-        else:  # Scope 3
-            if 'Measured' in label:
-                colors2.append('#2E7D32')
-            elif 'Calculated' in label:
-                colors2.append('#66BB6A')
-            else:
-                colors2.append('#A5D6A7')
-
-    wedges2, texts2, autotexts2 = ax2.pie(sizes2, labels=labels2, colors=colors2,
-                                            autopct='%1.0f%%', startangle=90,
-                                            textprops={'fontsize': 8})
-
-    for autotext in autotexts2:
-        autotext.set_color('white')
-        autotext.set_fontweight('bold')
-        autotext.set_fontsize(9)
-
-    ax2.set_title('Data Quality by Scope\n(ESRS E1 Breakdown)',
-                  fontsize=12, fontweight='bold', pad=20)
+    # Second pie chart removed for clarity (too many segments)
 
     # Add summary text
     quality_score = (total_measured / total_all) * 100
@@ -282,13 +239,10 @@ def create_data_quality_chart(df, output_path):
     summary_text += f'Calculated: {total_calculated:,.0f} tCO₂e\n'
     summary_text += f'Estimated: {total_estimated:,.0f} tCO₂e'
 
-    fig.text(0.5, 0.02, summary_text, ha='center', fontsize=9,
+    fig.text(0.5, 0.08, summary_text, ha='center', fontsize=11,
              bbox=dict(boxstyle='round', facecolor='lightgray', alpha=0.8))
 
-    plt.suptitle('Data Quality Assessment - Norrland Stål AB (ESRS E1)',
-                 fontsize=14, fontweight='bold', y=0.98)
-
-    plt.tight_layout(rect=[0, 0.1, 1, 0.96])
+    plt.tight_layout(rect=[0, 0.18, 1, 0.96])
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
     print(f"[OK] Created: {output_path}")
