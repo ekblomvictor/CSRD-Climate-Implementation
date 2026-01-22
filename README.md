@@ -27,7 +27,6 @@ This project showcases a complete **ESRS E1 Climate Change** reporting implement
 | **Data Documentation** | ✓ Complete | Full data dictionary with emission factors and references |
 | **Methodology Documentation** | ✓ Complete | GHG Protocol + ESRS E1 methodology guide |
 | **Synthetic Dataset** | ✓ Generated | Excel file with 4 sheets (778k tCO2e over 24 months) |
-| **Power BI Dashboard** | In Progress | Visualization and KPI tracking (coming soon) |
 | **GitHub Repository** | ✓ Live | [github.com/ekblomvictor/CSRD-Climate-Implementation](https://github.com/ekblomvictor/CSRD-Climate-Implementation) |
 
 ---
